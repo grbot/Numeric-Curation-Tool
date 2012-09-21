@@ -1,0 +1,54 @@
+<!DOCTYPE>
+<html>
+<head>
+	<link rel="stylesheet" href="css/jquery-ui-1.8.23.custom.css">
+	<script src="js/jquery-1.8.0.min.js"></script>
+	<script src="js/jquery-ui-1.8.23.custom.min.js"></script>
+	<script src="js/jquery.colorbox.js"></script>
+</head>
+<body>
+	<div class="mydiv"></div>
+	<script>
+		url='http://www.khanacademy.org/api/v1/topic/math?';
+		jQuery.getJSON(url+"callback=?", function(data) {
+			$.each(data,function(key,val){
+				if (key=='title')
+					alert(val);
+				//~ ka_topic_title = ;
+				//~ ka_topic_id = ;
+				//~ $('select.khan_topic_box').append('<option value="'+ka_topic_id+'">'+ka_topic_title+'</option>');
+				});
+		});
+
+		
+		
+		
+		
+		//~ url = 'http://www.khanacademy.org/api/v1/topictree?';
+		//~ jQuery.getJSON(url+"callback=?", function(data) {
+			//~ subject = data.children[1];//math
+			//~ subject_title = subject.title;
+			//~ //alert(subject_title);
+			//~ for (var i in subject.children){
+				//~ topic = subject.children[i];
+				//~ topic_name = topic.title;
+				//~ $('.mydiv').append(topic_name+'<br/>');
+				//~ //if (topic.kind!='Topic')
+					//~ //alert(topic);
+					//~ //alert(topic.kind);
+				//~ for (var j in topic.children){
+					//~ subtopic = topic.children[j];
+					//~ if (subtopic.kind=='Topic'){
+						//~ subtopic_name = subtopic.title;
+						//~ $('.mydiv').append('* '+subtopic_name+'<br/>');
+					//~ }
+					//~ else{
+						//~ $('.mydiv').append('---<br/>');
+						//~ break;
+					//~ }
+				//~ }
+			//~ }
+		//~ });
+	</script>
+</body>
+</html>

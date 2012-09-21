@@ -1,0 +1,14 @@
+li a{ 
+ list-style: none;
+ font-size: small;
+}
+
+ul{
+ list-style-type: none;
+}
+
+h3 {
+ padding: none;
+ margin-top: 5px;
+ margin-left: 4px;!
+}

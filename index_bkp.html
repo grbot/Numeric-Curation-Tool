@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Curriculum Tool Demo</title>
+	<link rel="stylesheet" href="css/colorbox.css" />
+	<link rel="stylesheet" href="css/jquery-ui-1.8.23.custom.css">
+	<script src="js/jquery-1.8.0.min.js"></script>
+	<script src="js/jquery-ui-1.8.23.custom.min.js"></script>
+	<script src="js/jquery.colorbox.js"></script>
+	<style>
+	h1 { padding: .2em; margin: 0; }
+	#products { float:left; width: 50%; }
+	#curriculum { width: 50%; float: right; }
+	/* style the list to maximize the droppable hitarea */
+	#curriculum ol { margin: 0; padding: 1em 0 1em 3em; }
+	</style>
+	<script>
+	function load_trees()
+	{
+		$( "#catalog" ).accordion();
+		$( "#catalog li" ).draggable({
+			revert: "true",
+			appendTo: "body",
+			helper: "clone"
+		});
+		$( "#ui-widget-content" ).accordion();
+
+		$( "#curriculum ol" ).droppable({
+			activeClass: "ui-state-default",
+			tolerance: "pointer",
+			hoverClass: "ui-state-hover",
+			accept: ":not(.ui-sortable-helper)",
+			drop: function( event, ui ) {
+				$( this ).find( ".placeholder" ).remove();
+				ui.helper.prevObject.css('color','grey');
+				href = ui.helper.prevObject.context.outerHTML.split('href="')[1].split('"')[0];
+				//$( "<li></li>" ).text( ui.draggable.text() ).appendTo( this );
+				txt = '<li><a href=\"'+href+'\">'+ui.draggable.text()+'</a><img src="images/close.png" onclick=\"$(this).closest(\'li\').remove()\"></img></li>';
+				$(txt).appendTo( this ).colorbox({iframe:true, href: href, width:"80%", height:"80%"});
+			}
+		}).sortable({
+			items: "li:not(.placeholder)",
+			update: function(){
+				//alert($(this));
+			},
+			sort: function() {
+				// gets added unintentionally by droppable interacting with sortable
+				// using connectWithSortable fixes this, but doesn't allow you to customize active/hoverClass options
+				$( this ).removeClass( "ui-state-default" );
+			}
+		});
+	$('div.ui-accordion-content').css('height','auto');
+	}
+	
+	
+	
+	$(function() {
+		//Fetch info from KA
+		result = '\n<h1 class="ui-widget-header">Videos</h1>\n<div id="catalog">\n';
+		//$('div#products').html(result+'<h3>loading...</h3>');
+		
+		url='http://www.khanacademy.org/api/v1/topic/addition-subtraction/videos?';
+		jQuery.getJSON(url+"&callback=?", function(data) {
+			result+='<h3><a href="#">Addition/Subtraction</a></h3><div><ul>';
+			for (var i=0;i<data.length;i++){
+				vid_title = data[i]['title'];
+				vid_url = data[i]['ka_url'];
+				txt = '<li><a href="'+vid_url+'">'+vid_title+'</a></li>\n';
+				result+=txt;
+			}
+			result+='</ul></div>';
+		
+			url='http://www.khanacademy.org/api/v1/topic/multiplication-division/videos?';
+			jQuery.getJSON(url+"&callback=?", function(data) {
+				result += '\n<h3><a href="#">Multiplication/Division</a></h3><div><ul>';
+				for (var i=0;i<data.length;i++){
+					vid_title = data[i]['title'];
+					vid_url = data[i]['ka_url'];
+					txt = '<li><a href="'+vid_url+'">'+vid_title+'</a></li>\n';
+					result+=txt;
+				}
+				result+='</ul></div>\n';
+				
+				//Now that we have collected all our lists we can close the catalogue div
+				result += '</div>';
+				//And append to our tree.
+				$('div#products').slideUp('slow');
+				$('div#curriculum').slideUp('slow');
+				$('div#products').append(result);
+				$('div#products').show('slow');
+				$('div#curriculum').show('slow');
+			
+				load_trees();
+				
+				$('a').click(function(){
+					if (this.href.indexOf('khanacademy.org') > 0){
+						$(this).colorbox({iframe:true, width:"80%", height:"80%"});
+					}
+				});
+			
+			});
+		});
+		//Done fetching info
+	});
+	</script>
+</head>
+<body>
+
+<div class="mapping_tool">
+
+<div id="products">
+<!-- begin khan dropdown -->
+<select>
+  <option value="khan_topic">Topic</option>
+  <option value="topic1">Topic 1</option>
+  <option value="topic2">Topic 2</option>
+  <option value="topic3">Some other long topic name</option>
+  <option value="topic4">topic</option>
+</select>
+<select disabled="disabled">
+  <option value="khan_subtopic">Subtopic</option>
+  <option value="subtopic1">Subtopic 1</option>
+  <option value="subtopic2">Subtopic 2</option>
+  <option value="subtopic3">Subtopic 3</option>
+</select>
+<!-- end khan dropdown -->	
+	<!-- Generate content here from Khan REST -->
+	
+</div>
+
+<div id="curriculum">
+<!-- begin curriculum dropdown -->
+<select>
+  <option value="grade">Grade</option>
+  <option value="basics">Basics</option>
+  <option value="grade_10">Grade 10</option>
+  <option value="grade_11">Grade 11</option>
+  <option value="grade_12">Grade 12</option>
+</select>
+<select disabled="disabled">
+  <option value="term">Term</option>
+  <option value="term1">Term 1</option>
+  <option value="term2">Term 2</option>
+  <option value="term3">Term 3</option>
+</select>
+<!-- end curriculum dropdown -->
+	<h1 class="ui-widget-header">My Curriculum</h1>
+	<div class="ui-widget-content">
+		<!-- Generate content here from Numeric REST -->
+		
+		<h3><a href="#">Weeks 1-3</a></h3>
+		<div>
+			<ol>
+				<li class="placeholder">Nothing here yet...</li>
+			</ol>
+		</div>
+		<h3><a href="#">Weeks 4-6</a></h3>
+		<div>
+			<ol>
+				<li class="placeholder">Nothing here yet...</li>
+			</ol>
+		</div>
+		<h3><a href="#">Weeks 7-10</a></h3>
+		<div>
+			<ol>
+				<li class="placeholder">Nothing here yet...</li>
+			</ol>
+		</div>
+		
+	</div>
+</div>
+
+</div><!-- End mapping_tool -->
+
+<br/>
+
+
+
+</body>
+</html>
