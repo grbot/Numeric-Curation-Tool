@@ -1,115 +1,119 @@
-
-window.n_caps=[];	
-url='http://localhost/api/v1/topics';
-jQuery.getJSON(url+"&callback=?", function(grades) {
-	window.n_caps=grades;
-	for (var i in grades){
-		grade = grades[i];
-		grade_title = grade['grade'];
-		$('select.numeric_grade_box')
-			.append($("<option></option>")
-			.attr("value",i)
-			.text(grade_title));
-	}
-	//setup onChange event for Numeric Grade
-	$('select.numeric_grade_box').change(function(){
-		$('select.numeric_week_box').attr('disabled','disabled');
-		//Fetch terms, populate the term box
-		selected_id = $(this).val();//grab id of element selected
-		console.log('grade id: '+selected_id);
-		$('select.numeric_term_box option').not('option[value=select_title]').remove();
-		$('select.numeric_week_box option').not('option[value=select_title]').remove();
-		terms = n_caps[selected_id]['children'];
-		for (var i in terms){
-			term = terms[i];
-			term_title=terms[i]['term'];
-			$('select.numeric_term_box')
+function setup(){//I've put the code below into a function (this one, setup()) to be called when the document has loaded and not before.
+	window.n_caps=[];	
+	url='http://localhost/api/v1/topics';
+	jQuery.getJSON(url+"&callback=?", function(grades) {
+		window.n_caps=grades;
+		for (var i in grades){
+			grade = grades[i];
+			console.log('Grade - '+i+' -> '+grade);
+			grade_title = grade['grade'];
+			$('select.numeric_grade_box')
 				.append($("<option></option>")
 				.attr("value",i)
-				.text(term_title));
-		}//populate the Term box.
-		$('select.numeric_term_box').removeAttr('disabled');
-		console.log('changed grade');
-	});
-	//setup onChange event for Numeric Term
-	$('select.numeric_term_box').change(function(){
-		//Fetch weeks/topics, populate the week/topic box
-		grade_id = $('select.numeric_grade_box').val();
-		term_id = $('select.numeric_term_box').val();
-		$('select.numeric_week_box option').not('option[value=select_title]').remove();
-		weeks = n_caps[grade_id]['children'][term_id]['children'];
-		for (var i in weeks){
-			week = weeks[i];
-			caps_id = week['caps_id'];
-			week_title=weeks[i]['week'];
-			topic_title=weeks[i]['topic'];
-			$('select.numeric_week_box')
-				.append($("<option></option>")
-				.attr("value",caps_id)
-				.text(week_title+': '+topic_title));
-		}//populate the Term box.
-		$('select.numeric_week_box').removeAttr('disabled');
-		console.log('changed grade');
-	});
-	//setup onChange event for Numeric Week
-	$('select.numeric_week_box').change(function(){
-		$('div#curated_content div.ui-widget-content h3 a').text('Loading...');
-		$('div#curated_content div.ui-widget-content  li').remove();
-		//Fetch videos, populate the curriculum box with class="ui-widget-content"
-		caps_id = $(this).val();
-		console.log('setting id to '+caps_id);
-		$('div#curated_content div.ui-widget-content').attr('id',caps_id);
-		topic_name = $(this).find(':selected').text();
-		console.log('Topic:::'+topic_name);
-		if (caps_id=='select_text')
-			return;
-		url='http://localhost/api/v1/caps_id/'+caps_id;
-		jQuery.getJSON(url+"&callback=?", function(videos) {
-			$('div#curated_content div.ui-widget-content h3 a').text(topic_name);
-			if (videos.length == 0){
-				$( "<li></li>" ).text('No videos here yet! Why not add some! :)').appendTo( 'div#curated_content div.ui-widget-content ol' );
+				.text(grade_title));
+		}
+		//setup onChange event for Numeric Grade
+		$('select.numeric_grade_box').change(function(){
+			$('select.numeric_week_box').attr('disabled','disabled');
+			//Fetch terms, populate the term box
+			selected_id = $(this).val();//grab id of element selected
+			console.log('grade id: '+selected_id);
+			$('select.numeric_term_box option').not('option[value=select_title]').remove();
+			$('select.numeric_week_box option').not('option[value=select_title]').remove();
+			terms = n_caps[selected_id]['children'];
+			for (var i in terms){
+				term = terms[i];
+				term_title=terms[i]['term'];
+				$('select.numeric_term_box')
+					.append($("<option></option>")
+					.attr("value",i)
+					.text(term_title));
+			}//populate the Term box.
+			$('select.numeric_term_box').removeAttr('disabled');
+			console.log('changed grade');
+		});
+		//setup onChange event for Numeric Term
+		$('select.numeric_term_box').change(function(){
+			//Fetch weeks/topics, populate the week/topic box
+			grade_id = $('select.numeric_grade_box').val();
+			term_id = $('select.numeric_term_box').val();
+			$('select.numeric_week_box option').not('option[value=select_title]').remove();
+			weeks = n_caps[grade_id]['children'][term_id]['children'];
+			for (var i in weeks){
+				week = weeks[i];
+				caps_id = week['caps_id'];
+				week_title=weeks[i]['week'];
+				topic_title=weeks[i]['topic'];
+				$('select.numeric_week_box')
+					.append($("<option></option>")
+					.attr("value",caps_id)
+					.text(week_title+': '+topic_title));
+			}//populate the Term box.
+			$('select.numeric_week_box').removeAttr('disabled');
+			console.log('changed grade');
+		});
+		//setup onChange event for Numeric Week
+		$('select.numeric_week_box').change(function(){
+			$('div#curated_content div.ui-widget-content h3 a').text('Loading...');
+			$('div#curated_content div.ui-widget-content  li').remove();
+			//Fetch videos, populate the curriculum box with class="ui-widget-content"
+			caps_id = $(this).val();
+			console.log('setting id to '+caps_id);
+			$('div#curated_content div.ui-widget-content').attr('id',caps_id);
+			topic_name = $(this).find(':selected').text();
+			console.log('Topic:::'+topic_name);
+			if (caps_id=='select_text')
 				return;
-			}
-			for (i in videos){
-				video = videos[i];
-				video_title = video['video_title'];
-				video_url = video['video_url'];
-				youtube_id = video['youtube_id'];
-				exercise_title = video['exercise_title'];
-				exercise_url = video['exercise_url']?video['exercise_url']:'#';
-				ex_div='<div class="exercise" style="display: none"><a href="'+exercise_url+'">'+exercise_title+'</a></div>';
-				$('div#curated_content div.ui-widget-content ol').append('<li id="'+youtube_id+'"><a href=\"'+video_url+'\">'+video_title+'</a><img src="images/close.png" onclick=\"$(this).closest(\'li\').remove()\"></img>'+ex_div+'</li>')
-			}
-			$( "div#curated_content ol" ).droppable({
-				activeClass: "ui-state-default",
-				tolerance: "pointer",
-				hoverClass: "ui-state-hover",
-				accept: ":not(.ui-sortable-helper)",
-				drop: function( event, ui ) {
-					$( this ).find( ".placeholder" ).remove();
-					ui.helper.prevObject.css('color','red');
-					href = ui.helper.prevObject.context.outerHTML.split('href="')[1].split('"')[0];
-					youtube_id = ui.helper.prevObject.find('a').attr('id'); //hahahahaha wtf?!
-					ex_div='<div class="exercise" style="display: none"><a href="#"></a></div>';
-					txt = '<li id="'+youtube_id+'"><a href=\"'+href+'\">'+ui.draggable.text()+'</a><img src="images/close.png" onclick=\"$(this).closest(\'li\').remove()\"></img>'+ex_div+'</li>';
-					$(txt).appendTo( this ).colorbox({iframe:true, href: href, width:"80%", height:"80%"});
+			url='http://localhost/api/v1/caps_id/'+caps_id;
+			jQuery.getJSON(url+"&callback=?", function(videos) {
+				$('div#curated_content div.ui-widget-content h3 a').text(topic_name);
+				if (videos.length == 0){
+					$( "<li></li>" ).text('No videos here yet! Why not add some! :)').appendTo( 'div#curated_content div.ui-widget-content ol' );
+					return;
 				}
-			}).sortable({
-				items: "li:not(.placeholder)",
-				update: function(){
-					//alert($(this));
-				},
-				sort: function() {
-					// gets added unintentionally by droppable interacting with sortable
-					// using connectWithSortable fixes this, but doesn't allow you to customize active/hoverClass options
-					$( this ).removeClass( "ui-state-default" );
+				for (i in videos){
+					video = videos[i];
+					video_title = video['video_title'];
+					video_url = video['video_url'];
+					youtube_id = video['youtube_id'];
+					exercise_title = video['exercise_title'];
+					exercise_url = video['exercise_url']?video['exercise_url']:'#';
+					ex_div='<div class="exercise" style="display: none"><a href="'+exercise_url+'">'+exercise_title+'</a></div>';
+					$('div#curated_content div.ui-widget-content ol').append('<li id="'+youtube_id+'"><a href=\"'+video_url+'\">'+video_title+'</a><img src="images/close.png" onclick=\"$(this).closest(\'li\').remove()\"></img>'+ex_div+'</li>')
 				}
+				$( "div#curated_content ol" ).droppable({
+					activeClass: "ui-state-default",
+					tolerance: "pointer",
+					hoverClass: "ui-state-hover",
+					accept: ":not(.ui-sortable-helper)",
+					drop: function( event, ui ) {//happens when an element is dropped
+						$( this ).find( ".placeholder" ).remove();
+						ui.helper.prevObject.css('color','red');
+						href = ui.helper.prevObject.context.outerHTML.split('href="')[1].split('"')[0];
+						youtube_id = ui.helper.prevObject.find('a').attr('id');
+						if (!youtube_id) //if undefined
+							alert('Warning: the KA database does not have a youtube_id associated with this video. Please enter one in manually when sending the csv file, or remove it.');//alert the user (intrusive)
+						ex_div='<div class="exercise" style="display: none"><a href="#"></a></div>';
+						txt = '<li id="'+youtube_id+'"><a href=\"'+href+'\">'+ui.draggable.text()+'</a><img src="images/close.png" onclick=\"$(this).closest(\'li\').remove()\"></img>'+ex_div+'</li>';
+						$(txt).appendTo( this ).colorbox({iframe:true, href: href, width:"80%", height:"80%"});
+					}
+				}).sortable({
+					items: "li:not(.placeholder)",
+					update: function(){
+						//alert($(this));
+					},
+					sort: function() {
+						// gets added unintentionally by droppable interacting with sortable
+						// using connectWithSortable fixes this, but doesn't allow you to customize active/hoverClass options
+						$( this ).removeClass( "ui-state-default" );
+					}
+				});
 			});
 		});
 	});
-});
+}
 
-var save = function(){//TODO: youtube_id gets loaded with the ka stuff, and stays when moved across.
+var save = function(){
 	newline = '%0D%0A'; //this is the newline char in html for mailto. LF=%0A, CR=%0D, crlf=%0D$0A.
 	csv = '"caps_id","video_id","exercise_title","exercise_url"'+newline;
 	//Now we wish to save the contents of our list.
@@ -127,7 +131,7 @@ var save = function(){//TODO: youtube_id gets loaded with the ka stuff, and stay
 	h=csv.replace(/"/g,'%22').replace(/,/g,'%2C').replace(/ /g,'%20');
 	console.log(h);
 	window.location.href = 'mailto:jarednorman@hotmail.com?Subject=CAPS_ID_'+caps_id+'&body='+h;
-	window.prompt ("Copy this to clipboard ( Ctrl+C or Cmd-C )\nThen send it to me (jarednorman@hotmail.com)", h);
+	//window.prompt ("Copy this to clipboard ( Ctrl+C or Cmd-C )\nThen send it to me (jarednorman@hotmail.com)", h);
 }
 
 function load_trees(){
@@ -138,7 +142,7 @@ function load_trees(){
 		helper: "clone"
 	});
 	$( "#ui-widget-content" ).accordion();
-$('div.ui-accordion-content').css('height','auto');
+	$('div.ui-accordion-content').css('height','auto');
 }
 	
 function get_subtree(subtree_id,dest_selector,title_element){//picks topic with id=subtree_id and append <option> tag to $(dest_selector)
@@ -203,7 +207,7 @@ function get_subtree(subtree_id,dest_selector,title_element){//picks topic with 
 /*end code to abort ajax
  *So, now to stop everything, just call abort...
  */
-function refresh_khan(topic_id){
+function refresh_khan(topic_id){//needs some work
 	/**
 	 * If nothing is passed in, sets the Khan Windows text to "Select Topic".
 	 * Otherwise, sets it to 'loading' while the processing takes place...
@@ -212,7 +216,7 @@ function refresh_khan(topic_id){
 	 * otherwise makes lists for each child of topic (which should be a subtopic and
 	 * hence only have videos/exercises as children).
 	 **/
-	abort();//abort any current ajax_requests - may have to modify this to only abort KA requests...
+	//abort();//abort any current ajax_requests - TODO: modify this to only abort KA requests...
 	
 	if(!topic_id || topic_id == 'select_title'){
 		$('.khan_accordian_box').html('<h1 class="ui-widget-header">Select Khan topic above</h1>');
@@ -349,8 +353,9 @@ function refresh_khan(topic_id){
 
 
 function do_onready(){
-	//get info from numeric db:
+	setup();
 	
+	//get info from numeric db:
 	get_subtree('root','select.khan_subject_box','Subjects:');//automatically load Subjects when webpage loads.
 	//setup onChange event for Khan Subject
 	$('select.khan_subject_box').change(function(){//when user selects a Subject from khan_subject_box
